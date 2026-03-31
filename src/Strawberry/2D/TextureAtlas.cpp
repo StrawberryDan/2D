@@ -185,7 +185,7 @@ namespace Strawberry::TwoD
 					// If the image is too small, split this box into 4 sub boxes.
 					if (tooSmall)
 					{
-						//
+						// Make child box in top left corner by copying and moving max to center.
 						Core::Math::AABB<unsigned int, 2> childBox = box;
 						childBox.SetMax(childBox.Center());
 
