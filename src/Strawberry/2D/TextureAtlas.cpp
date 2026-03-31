@@ -12,7 +12,7 @@ namespace Strawberry::TwoD
 		unsigned int arrayLength)
 			: mCommandPool(queue)
 			, mGPUImage(Vulkan::Image::Builder(queue.GetDevice(), Vulkan::MemoryTypeCriteria::DeviceLocal())
-				.WithFormat(VK_FORMAT_R8G8B8A8_UNORM)
+				.WithFormat(VK_FORMAT_R8G8B8A8_SRGB)
 				.WithExtent(pageSize)
 				.WithArrayLayers(arrayLength)
 				.WithUsage(VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT)
@@ -55,7 +55,7 @@ namespace Strawberry::TwoD
 			.Build();
 		stagingBuffer.SetData({texture.Data(), DATA_SIZE});
 
-		Key nextKey = (Key) mEntries.size();
+		Key nextKey = (Key) (mEntries.size() + mPendingEntries.size());
 		Core::Optional<Entry> entry = FindRectangleForTexture(texture.Size());
 		mPendingEntries.emplace_back(nextKey,
 			std::move(entry
