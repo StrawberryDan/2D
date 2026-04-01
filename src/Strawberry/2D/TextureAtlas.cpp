@@ -95,7 +95,8 @@ namespace Strawberry::TwoD
 				.ToLayout(VK_IMAGE_LAYOUT_GENERAL)
 		});
 		commandBuffer.End();
-		commandBuffer.Submit().wait();
+		commandBuffer.Submit();
+		commandBuffer.Wait();
 		mPendingEntries.clear();
 	}
 
