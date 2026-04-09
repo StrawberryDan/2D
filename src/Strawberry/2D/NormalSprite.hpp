@@ -10,6 +10,11 @@ namespace Strawberry::TwoD
 		: public Sprite
 	{
 	public:
+		NormalSprite(const TextureReference& diffuseTexture, const TextureReference& normalTexture);
+
+
+		const TextureReference& GetNormalTexture() const;
+
 
 	private:
 		TextureReference mNormalTextureReference;

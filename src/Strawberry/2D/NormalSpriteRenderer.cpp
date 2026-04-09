@@ -1,20 +1,19 @@
-#include "SpriteRenderer.hpp"
+#include "NormalSpriteRenderer.hpp"
 
 #include "NormalSprite.hpp"
 #include "Sprite.hpp"
 #include "Strawberry/Core/Math/Transformations.hpp"
 #include "Strawberry/Vulkan/Descriptor/Sampler.hpp"
-#include "Strawberry/Vulkan/Math/Projection.hpp"
 #include "Strawberry/Vulkan/Resource/Buffer.hpp"
 
 
 static uint8_t VERTEX_SHADER[] {
-#include "SpriteRenderer.vert.bin"
+#include "NormalSpriteRenderer.vert.bin"
 };
 
 
 static uint8_t FRAGMENT_SHADER[] {
-#include "SpriteRenderer.frag.bin"
+#include "NormalSpriteRenderer.frag.bin"
 };
 
 
@@ -23,7 +22,7 @@ namespace Strawberry::TwoD
 	static constexpr size_t DRAW_CONSTANTS_BUFFER_SIZE = sizeof(Core::Math::Mat4f);
 
 
-	SpriteRenderer::SpriteRenderer(Vulkan::Framebuffer& frameBuffer, uint32_t subpassIndex)
+	NormalSpriteRenderer::NormalSpriteRenderer(Vulkan::Framebuffer& frameBuffer, uint32_t subpassIndex)
 		: mPipelineLayout(Vulkan::PipelineLayout::Builder(frameBuffer.GetDevice())
 			.WithDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
 			.WithDescriptor(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
@@ -42,6 +41,9 @@ namespace Strawberry::TwoD
 			.WithInputAttribute(4, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
 			.WithInputAttribute(5, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
 			.WithInputAttribute(6, 0, sizeof(uint32_t), VK_FORMAT_R32_UINT)
+			.WithInputAttribute(7, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
+			.WithInputAttribute(8, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
+			.WithInputAttribute(9, 0, sizeof(uint32_t), VK_FORMAT_R32_UINT)
 			.WithRasterization(VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, VK_FRONT_FACE_COUNTER_CLOCKWISE)
 			.WithDepthTesting()
 			.WithAlphaColorBlending()
@@ -65,20 +67,20 @@ namespace Strawberry::TwoD
 	}
 
 
-	const Core::Math::Mat4f SpriteRenderer::GetProjectionMatrix() const noexcept
+	const Core::Math::Mat4f NormalSpriteRenderer::GetProjectionMatrix() const noexcept
 	{
 		return mProjectionMatrix;
 	}
 
 
-	void SpriteRenderer::SetProjectionMatrix(const Core::Math::Mat4f& projectionMatrix)
+	void NormalSpriteRenderer::SetProjectionMatrix(const Core::Math::Mat4f& projectionMatrix)
 	{
 		mProjectionMatrix = projectionMatrix;
 		mDrawConstantsBuffer.SetData(Core::IO::DynamicByteBuffer::FromObjects(mProjectionMatrix));
 	}
 
 
-	std::vector<Vulkan::Batch> SpriteRenderer::MakeBatch(const Sprite& sprite)
+	std::vector<Vulkan::Batch> NormalSpriteRenderer::MakeBatch(const NormalSprite& sprite)
 	{
 		std::vector<Vulkan::Batch> batch;
 
@@ -96,10 +98,25 @@ namespace Strawberry::TwoD
 			mTextureAtlasDescriptorSets.at(handle).SetCombinedImageSampler(0, 0, mSampler, mTextureAtlasViews.at(handle), VK_IMAGE_LAYOUT_GENERAL);
 		}
 
+		if (auto handle = sprite.GetNormalTexture().Image()->GetHandle(); !mTextureAtlasDescriptorSets.contains(handle)) [[unlikely]]
+		{
+			mTextureAtlasViews.emplace(
+				handle,
+				Vulkan::ImageView::Builder(*sprite.GetNormalTexture().Image(), VK_IMAGE_ASPECT_COLOR_BIT)
+					.WithFormat(VK_FORMAT_A2R10G10B10_UNORM_PACK32)
+					.WithType(VK_IMAGE_VIEW_TYPE_2D_ARRAY)
+					.Build());
+			mTextureAtlasDescriptorSets.emplace(
+				handle,
+				mPipeline.CreateDescriptorSet(2).Unwrap());
+			mTextureAtlasDescriptorSets.at(handle).SetCombinedImageSampler(0, 0, mSampler, mTextureAtlasViews.at(handle), VK_IMAGE_LAYOUT_GENERAL);
+		}
+
 		batch.emplace_back(Vulkan::Batch(mPipeline)
 			.WithVertexCount(6)
 			.WithDescriptorSet(0, &mDrawConstantsDescriptorSet)
 			.WithDescriptorSet(1, mTextureAtlasDescriptorSets.at(sprite.GetTexture().Image()->GetHandle()))
+			.WithDescriptorSet(2, mTextureAtlasDescriptorSets.at(sprite.GetNormalTexture().Image()->GetHandle()))
 			.WithVertexBuffer(0,
 				Vulkan::Buffer::Builder(mPipeline.GetDevice(), Vulkan::MemoryTypeCriteria::HostVisible())
 					.WithUsage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
@@ -111,20 +128,23 @@ namespace Strawberry::TwoD
 						sprite.GetPosition()[2],
 						sprite.GetTextureMin(),
 						sprite.GetTextureMax(),
-						sprite.GetTexturePage()))
+						sprite.GetTexturePage(),
+						sprite.GetNormalTexture().Region().Min().AsType<float>().Piecewise(std::divides{}, sprite.GetNormalTexture().Image()->GetSize().AsSize<2>().AsType<float>()),
+						sprite.GetNormalTexture().Region().Max().AsType<float>().Piecewise(std::divides{}, sprite.GetNormalTexture().Image()->GetSize().AsSize<2>().AsType<float>()),
+						sprite.GetNormalTexture().ArrayIndex()))
 					.Build()));
 
 		return batch;
 	}
 
 
-	float SpriteRenderer::GetScale() const
+	float NormalSpriteRenderer::GetScale() const
 	{
 		return mScale;
 	}
 
 
-	void SpriteRenderer::SetScale(float scale)
+	void NormalSpriteRenderer::SetScale(float scale)
 	{
 		mScale = scale;
 	}

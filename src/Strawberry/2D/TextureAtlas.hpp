@@ -13,6 +13,7 @@ namespace Strawberry::TwoD
 {
 	class TextureManifest;
 
+
 	class TextureAtlas
 	{
 	public:
@@ -21,11 +22,16 @@ namespace Strawberry::TwoD
 
 
 		TextureAtlas(Vulkan::Queue& queue, const Core::Math::Vec2u& pageSize, unsigned int arrayLength = 1);
+		TextureAtlas(const TextureAtlas&) = delete;
+		TextureAtlas& operator=(const TextureAtlas&) = delete;
+		TextureAtlas(TextureAtlas&&) = default;
+		TextureAtlas& operator=(TextureAtlas&&) = default;
+		virtual ~TextureAtlas() = default;
 
 
 		void Register(const TextureManifest& textureManifest);
-		Key Register(const std::string& handle, Core::Image<Core::PixelRGBA>&& texture);
-		Key Register(Core::Image<Core::PixelRGBA>&& texture);
+		Key  Register(const std::string& handle, Core::Image<Core::PixelRGBA>&& texture);
+		virtual Key Register(Core::Image<Core::PixelRGBA>&& texture) = 0;
 
 
 		void Flush() const;
@@ -36,8 +42,9 @@ namespace Strawberry::TwoD
 		[[nodiscard]] TextureReference GetTextureReference(const Handle& handle) const;
 
 
-	private:
+	protected:
 		static constexpr unsigned int MIN_BOX_SIZE = 8;
+
 
 		struct Entry
 		{
@@ -46,6 +53,7 @@ namespace Strawberry::TwoD
 			unsigned int                      arrayLayer;
 		};
 
+
 		struct PendingEntry
 		{
 			Key            key;
@@ -53,20 +61,60 @@ namespace Strawberry::TwoD
 			Vulkan::Buffer imageData;
 		};
 
+
 		struct BoxTree
 		{
 			Core::Math::NAryTree<Core::Math::AABB<unsigned int, 2>, 4> tree;
 			std::set<decltype(tree)::Config::NodeID>                   usedNodes;
 		};
 
+
 		Core::Optional<Entry> FindRectangleForTexture(Core::Math::Vec2u size);
 
-		std::map<unsigned int, BoxTree> mBoxTree;
 
+		virtual Vulkan::Image& GetImage() const = 0;
+
+
+		std::map<unsigned int, BoxTree>         mBoxTree;
 		mutable Vulkan::CommandPool             mCommandPool;
-		mutable Vulkan::Image                   mGPUImage;
 		mutable std::map<Key, Entry>            mEntries;
 		mutable std::vector<PendingEntry>       mPendingEntries;
 		std::unordered_map<Handle, Key>         mHandleMapping;
+	};
+
+
+	class DiffuseTextureAtlas
+		: public TextureAtlas
+	{
+	public:
+		DiffuseTextureAtlas(Vulkan::Queue& queue, const Core::Math::Vec2u& pageSize, unsigned int arrayLength = 1);
+
+
+		using TextureAtlas::Register;
+		Key  Register(Core::Image<Core::PixelRGBA>&& texture) override;
+
+	protected:
+		Vulkan::Image& GetImage() const override;
+
+	private:
+		mutable Vulkan::Image mGPUImage;
+	};
+
+
+	class NormalTextureAtlas
+		: public TextureAtlas
+	{
+	public:
+		NormalTextureAtlas(Vulkan::Queue& queue, const Core::Math::Vec2u& pageSize, unsigned int arrayLength = 1);
+
+
+		using TextureAtlas::Register;
+		Key Register(Core::Image<Core::PixelRGBA>&& texture) override;
+
+	protected:
+		Vulkan::Image& GetImage() const override;
+
+	private:
+		mutable Vulkan::Image mGPUImage;
 	};
 }

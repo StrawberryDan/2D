@@ -15,6 +15,9 @@ namespace Strawberry::TwoD
 			unsigned int arrayIndex = 0);
 
 
+		void RotateCCW();
+
+
 		const auto& Image() const { return mImage; }
 		const auto& Region() const { return mRegion; }
 		unsigned int ArrayIndex() const { return mArrayIndex; }

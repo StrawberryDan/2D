@@ -8,19 +8,19 @@
 
 namespace Strawberry::TwoD
 {
-	class Sprite;
+	class NormalSprite;
 
-	class SpriteRenderer
+	class NormalSpriteRenderer
 	{
 	public:
-		SpriteRenderer(Vulkan::Framebuffer& frameBuffer, uint32_t subpassIndex);
+		NormalSpriteRenderer(Vulkan::Framebuffer& frameBuffer, uint32_t subpassIndex);
 
 
 		[[nodiscard]] const Core::Math::Mat4f GetProjectionMatrix() const noexcept;
 		void SetProjectionMatrix(const Core::Math::Mat4f& projectionMatrix);
 
 
-		std::vector<Vulkan::Batch> MakeBatch(const Sprite& sprite);
+		std::vector<Vulkan::Batch> MakeBatch(const NormalSprite& sprite);
 
 
 		float GetScale() const;
