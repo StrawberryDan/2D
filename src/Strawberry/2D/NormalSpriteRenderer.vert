@@ -4,22 +4,23 @@
 #include "SpriteRenderer.glsl"
 
 
-layout (location=0) in mat3  inTransform;
-layout (location=3) in float inDepth;
+layout (location=0) in vec3 inPosition;
+layout (location=1) in vec3 inExtent;
 
-layout (location=4) in vec2  inDiffuseTextureMin;
-layout (location=5) in vec2  inDiffuseTextureMax;
-layout (location=6) in uint  inDiffuseTexturePage;
+layout (location=2) in vec2  inDiffuseTextureMin;
+layout (location=3) in vec2  inDiffuseTextureMax;
+layout (location=4) in uint  inDiffuseTexturePage;
 
-layout (location=7) in vec2  inNormalTextureMin;
-layout (location=8) in vec2  inNormalTextureMax;
-layout (location=9) in uint  inNormalTexturePage;
+layout (location=5) in vec2  inNormalTextureMin;
+layout (location=6) in vec2  inNormalTextureMax;
+layout (location=7) in uint  inNormalTexturePage;
 
 
 layout (location=0) out      vec2 outDiffuseTextureCoord;
 layout (location=1) out flat uint outDiffuseTexturePage;
 layout (location=2) out      vec2 outNormalTextureCoord;
 layout (location=3) out flat uint outNormalTexturePage;
+layout (location=4) out flat float outRotation;
 
 
 const vec2 GEOMETRY[] =
@@ -68,14 +69,19 @@ vec2 GetNormalTextureCoordinate()
 
 void main()
 {
+    const float inRotation = inExtent.z;
+
     outDiffuseTexturePage = inDiffuseTexturePage;
     outDiffuseTextureCoord = GetDiffuseTextureCoordinate();
     outNormalTexturePage = inNormalTexturePage;
     outNormalTextureCoord = GetNormalTextureCoordinate();
 
+    mat2 rotation = mat2(cos(inRotation), sin(inRotation), -sin(inRotation), cos(inRotation));
+
     gl_Position = ProjectionMatrix * vec4(
-        vec2(inTransform * vec3(GEOMETRY[gl_VertexIndex], 1.0)),
+        vec2(inPosition.xy + rotation * inExtent.xy * GEOMETRY[gl_VertexIndex]),
         0.0f,
         1.0);
-    gl_Position.xy *= pow(2, inDepth);
+    gl_Position.xy *= pow(2, inPosition.z);
+    outRotation = inRotation;
 }
