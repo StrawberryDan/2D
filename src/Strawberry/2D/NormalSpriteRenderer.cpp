@@ -47,7 +47,8 @@ namespace Strawberry::TwoD
 			.WithAlphaColorBlending()
 			.WithViewport(frameBuffer)
 			.Build())
-		, mSampler(Vulkan::Sampler(frameBuffer.GetDevice(), VK_FILTER_NEAREST, VK_FILTER_NEAREST))
+		, mDiffuseSampler(Vulkan::Sampler(frameBuffer.GetDevice(), VK_FILTER_NEAREST, VK_FILTER_NEAREST))
+		, mNormalSampler(Vulkan::Sampler(frameBuffer.GetDevice(), VK_FILTER_LINEAR, VK_FILTER_LINEAR))
 		, mDrawConstantsDescriptorSet(Vulkan::DescriptorSet::Allocate(frameBuffer.GetDevice(), mPipelineLayout.GetSetLayout(0)).Unwrap())
 		, mDrawConstantsBuffer(Vulkan::Buffer::Builder(frameBuffer.GetDevice(), Vulkan::MemoryTypeCriteria::HostVisible())
 			.WithSize(DRAW_CONSTANTS_BUFFER_SIZE)
@@ -93,7 +94,7 @@ namespace Strawberry::TwoD
 			mTextureAtlasDescriptorSets.emplace(
 				handle,
 				mPipeline.CreateDescriptorSet(1).Unwrap());
-			mTextureAtlasDescriptorSets.at(handle).SetCombinedImageSampler(0, 0, mSampler, mTextureAtlasViews.at(handle), VK_IMAGE_LAYOUT_GENERAL);
+			mTextureAtlasDescriptorSets.at(handle).SetCombinedImageSampler(0, 0, mDiffuseSampler, mTextureAtlasViews.at(handle), VK_IMAGE_LAYOUT_GENERAL);
 		}
 
 		if (auto handle = sprite.GetNormalTexture().Image()->GetHandle(); !mTextureAtlasDescriptorSets.contains(handle)) [[unlikely]]
@@ -107,7 +108,7 @@ namespace Strawberry::TwoD
 			mTextureAtlasDescriptorSets.emplace(
 				handle,
 				mPipeline.CreateDescriptorSet(2).Unwrap());
-			mTextureAtlasDescriptorSets.at(handle).SetCombinedImageSampler(0, 0, mSampler, mTextureAtlasViews.at(handle), VK_IMAGE_LAYOUT_GENERAL);
+			mTextureAtlasDescriptorSets.at(handle).SetCombinedImageSampler(0, 0, mNormalSampler, mTextureAtlasViews.at(handle), VK_IMAGE_LAYOUT_GENERAL);
 		}
 
 		batch.emplace_back(Vulkan::Batch(mPipeline)

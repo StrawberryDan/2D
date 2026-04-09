@@ -38,7 +38,8 @@ namespace Strawberry::TwoD
 		Vulkan::Buffer           mDrawConstantsBuffer;
 		Core::Math::Mat4f        mProjectionMatrix;
 
-		Vulkan::Sampler mSampler;
+		Vulkan::Sampler mDiffuseSampler;
+		Vulkan::Sampler mNormalSampler;
 		std::map<Vulkan::Image::Handle, Vulkan::DescriptorSet> mTextureAtlasDescriptorSets;
 		std::map<Vulkan::Image::Handle, Vulkan::ImageView> mTextureAtlasViews;
 	};
