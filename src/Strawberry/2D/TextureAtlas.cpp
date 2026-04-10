@@ -266,10 +266,12 @@ namespace Strawberry::TwoD
 			normal[0] = static_cast<float>(pixel[0]) / 255.f;
 			normal[1] = static_cast<float>(pixel[1]) / 255.f;
 			normal[2] = static_cast<float>(pixel[2]) / 255.f;
+			float alpha = static_cast<float>(pixel[3]) / 255.f;
 
 			Core::Math::Vec3u quantizedNormal = normal.Map([] (const float x) -> unsigned int { return static_cast<unsigned int>(std::round(1023.f * x)); });
+			unsigned int quantizedAlpha = static_cast<unsigned int>(std::round(3.0f * alpha));
 
-			uint32_t encodedNormal = quantizedNormal[0] << 20 | quantizedNormal[1] << 10 | quantizedNormal[2] << 00;
+			uint32_t encodedNormal = quantizedAlpha << 30 | quantizedNormal[0] << 20 | quantizedNormal[1] << 10 | quantizedNormal[2] << 00;
 			encoded.Push(encodedNormal);
 		}
 		stagingBuffer.SetData(encoded);

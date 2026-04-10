@@ -25,18 +25,27 @@ void main()
         DiffuseTexture,
         vec3(inDiffuseTextureCoord, inDiffuseTexturePage));
 
-    vec3 normal = texture(
+    vec4 normal = texture(
         NormalTexture,
-        vec3(inNormalTextureCoord, inNormalTexturePage)).xyz;
-    normal.x = 2.0 * normal.x - 1.0;
-    normal.y = 2.0 * normal.y- 1.0;
-    mat2 rotation = mat2(cos(-inRotation), sin(-inRotation), -sin(-inRotation), cos(-inRotation));
-    normal = vec3(rotation * normal.xy, normal.z);
-    normal = normalize(normal);
+        vec3(inNormalTextureCoord, inNormalTexturePage));
+
+    if (normal.a > 0)
+    {
+        normal.x = 2.0 * normal.x - 1.0;
+        normal.y = 2.0 * normal.y- 1.0;
+        mat2 rotation = mat2(cos(-inRotation), sin(-inRotation), -sin(-inRotation), cos(-inRotation));
+        normal.xy = rotation * normal.xy;
+        normal = normalize(normal);
 
 
-    const float LAMBERTIAN = (1.0 - AMBIENT) * clamp(dot(normal, -LIGHT_DIRECTION), 0.0, 1.0);
+        const float LAMBERTIAN = (1.0 - AMBIENT) * clamp(dot(normal.xyz, -LIGHT_DIRECTION), 0.0, 1.0);
 
-    outColor.xyz = AMBIENT * diffuse.xyz + LAMBERTIAN * diffuse.xyz * LIGHT_COLOR;
-    outColor.w = diffuse.w;
+        outColor.xyz = AMBIENT * diffuse.xyz + LAMBERTIAN * diffuse.xyz * LIGHT_COLOR;
+        outColor.w = diffuse.w;
+    }
+    else
+    {
+        outColor.xyz = diffuse.xyz;
+        outColor.w = diffuse.w;
+    }
 }
