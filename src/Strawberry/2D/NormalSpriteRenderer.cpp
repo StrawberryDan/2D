@@ -48,7 +48,7 @@ namespace Strawberry::TwoD
 			.WithViewport(frameBuffer)
 			.Build())
 		, mDiffuseSampler(Vulkan::Sampler(frameBuffer.GetDevice(), VK_FILTER_NEAREST, VK_FILTER_NEAREST))
-		, mNormalSampler(Vulkan::Sampler(frameBuffer.GetDevice(), VK_FILTER_LINEAR, VK_FILTER_LINEAR))
+		, mNormalSampler(Vulkan::Sampler(frameBuffer.GetDevice(), VK_FILTER_NEAREST, VK_FILTER_NEAREST))
 		, mDrawConstantsDescriptorSet(Vulkan::DescriptorSet::Allocate(frameBuffer.GetDevice(), mPipelineLayout.GetSetLayout(0)).Unwrap())
 		, mDrawConstantsBuffer(Vulkan::Buffer::Builder(frameBuffer.GetDevice(), Vulkan::MemoryTypeCriteria::HostVisible())
 			.WithSize(DRAW_CONSTANTS_BUFFER_SIZE)
