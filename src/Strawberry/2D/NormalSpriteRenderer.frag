@@ -30,8 +30,8 @@ void main()
         vec3(inNormalTextureCoord, inNormalTexturePage)).xyz;
     normal.x = 2.0 * normal.x - 1.0;
     normal.y = 2.0 * normal.y- 1.0;
-    mat2 rotation = mat2(cos(inRotation), sin(inRotation), -sin(inRotation), cos(inRotation));
-    normal = vec3(inverse(rotation) * normal.xy, normal.z);
+    mat2 rotation = mat2(cos(-inRotation), sin(-inRotation), -sin(-inRotation), cos(-inRotation));
+    normal = vec3(rotation * normal.xy, normal.z);
     normal = normalize(normal);
 
 
