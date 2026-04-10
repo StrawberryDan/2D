@@ -15,7 +15,7 @@ layout (location=0) out vec4 outColor;
 
 
 const float AMBIENT = 0.1;
-const vec4 LIGHT_COLOR = vec4(1.0, 0.5, 0.5, 1.0);
+const vec3 LIGHT_COLOR = vec3(1.0, 0.5, 0.5);
 
 void main()
 {
@@ -37,5 +37,6 @@ void main()
 
     const float LAMBERTIAN = (1.0 - AMBIENT) * clamp(dot(normal, -LIGHT_DIRECTION), 0.0, 1.0);
 
-    outColor = AMBIENT * diffuse + pow(LAMBERTIAN, 1) * diffuse * LIGHT_COLOR;
+    outColor.xyz = AMBIENT * diffuse.xyz + LAMBERTIAN * diffuse.xyz * LIGHT_COLOR;
+    outColor.w = diffuse.w;
 }
