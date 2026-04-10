@@ -19,7 +19,7 @@ const vec4 LIGHT_COLOR = vec4(1.0, 0.5, 0.5, 1.0);
 
 void main()
 {
-    const vec3 lightDirection = vec3(-1, -1, -0.8);
+    const vec3 LIGHT_DIRECTION = normalize(vec3(-1, -1, -0.8));
 
     vec4 diffuse = texture(
         DiffuseTexture,
@@ -35,7 +35,7 @@ void main()
     normal = normalize(normal);
 
 
-    const float LAMBERTIAN = (1.0 - AMBIENT) * clamp(dot(normal, -lightDirection), 0.0, 1.0);
+    const float LAMBERTIAN = (1.0 - AMBIENT) * clamp(dot(normal, -LIGHT_DIRECTION), 0.0, 1.0);
 
     outColor = AMBIENT * diffuse + pow(LAMBERTIAN, 1) * diffuse * LIGHT_COLOR;
 }
