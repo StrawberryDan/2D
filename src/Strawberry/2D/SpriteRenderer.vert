@@ -4,15 +4,15 @@
 #include "SpriteRenderer.glsl"
 
 
-layout (location=0) in mat3  inTransform;
-layout (location=3) in float inDepth;
+layout (location=0) in vec3 inPosition;
+layout (location=1) in vec3 inExtent;
 
-layout (location=4) in vec2  inDiffuseTextureMin;
-layout (location=5) in vec2  inDiffuseTextureMax;
-layout (location=6) in uint  inDiffuseTexturePage;
+layout (location=2) in vec2  inDiffuseTextureMin;
+layout (location=3) in vec2  inDiffuseTextureMax;
+layout (location=4) in uint  inDiffuseTexturePage;
 
 
-layout (location=0) out vec2 outDiffuseTextureCoord;
+layout (location=0) out      vec2 outDiffuseTextureCoord;
 layout (location=1) out flat uint outDiffuseTexturePage;
 
 
@@ -31,26 +31,30 @@ vec2 GetDiffuseTextureCoordinate()
     switch (gl_VertexIndex)
     {
         case 0:
-            return inDiffuseTextureMin;
+        return inDiffuseTextureMin;
         case 1:
         case 3:
-            return vec2(inDiffuseTextureMax.x, inDiffuseTextureMin.y);
+        return vec2(inDiffuseTextureMax.x, inDiffuseTextureMin.y);
         case 4:
-            return inDiffuseTextureMax;
+        return inDiffuseTextureMax;
         case 2:
         case 5:
-            return vec2(inDiffuseTextureMin.x, inDiffuseTextureMax.y);
+        return vec2(inDiffuseTextureMin.x, inDiffuseTextureMax.y);
     }
 }
 
 void main()
 {
+    const float inRotation = inExtent.z;
+
     outDiffuseTexturePage = inDiffuseTexturePage;
     outDiffuseTextureCoord = GetDiffuseTextureCoordinate();
 
+    mat2 rotation = mat2(cos(inRotation), sin(inRotation), -sin(inRotation), cos(inRotation));
+
     gl_Position = ProjectionMatrix * vec4(
-        vec2(inTransform * vec3(GEOMETRY[gl_VertexIndex], 1.0)),
-        0.0f,
+        vec2(inPosition.xy + rotation * inExtent.xy * GEOMETRY[gl_VertexIndex]),
+        inPosition.z,
         1.0);
-        gl_Position.xy *= pow(2, inDepth);
+    gl_Position.xy *= pow(2, inPosition.z);
 }

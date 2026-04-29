@@ -80,7 +80,7 @@ void main()
 
     gl_Position = ProjectionMatrix * vec4(
         vec2(inPosition.xy + rotation * inExtent.xy * GEOMETRY[gl_VertexIndex]),
-        0.0f,
+        inPosition.z,
         1.0);
     gl_Position.xy *= pow(2, inPosition.z);
     outRotation = inRotation;

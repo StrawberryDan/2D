@@ -27,7 +27,6 @@ namespace Strawberry::TwoD
 		: mPipelineLayout(Vulkan::PipelineLayout::Builder(frameBuffer.GetDevice())
 			.WithDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
 			.WithDescriptor(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			.WithDescriptor(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.Build())
 		, mPipeline(Vulkan::GraphicsPipeline::Builder(mPipelineLayout, frameBuffer.GetRenderPass(), subpassIndex)
 			.WithShaderStages(
@@ -37,11 +36,9 @@ namespace Strawberry::TwoD
 			.WithInputBinding(0, VK_VERTEX_INPUT_RATE_INSTANCE)
 			.WithInputAttribute(0, 0, sizeof(Core::Math::Vec3f), VK_FORMAT_R32G32B32_SFLOAT)
 			.WithInputAttribute(1, 0, sizeof(Core::Math::Vec3f), VK_FORMAT_R32G32B32_SFLOAT)
-			.WithInputAttribute(2, 0, sizeof(Core::Math::Vec3f), VK_FORMAT_R32G32B32_SFLOAT)
-			.WithInputAttribute(3, 0, sizeof(float), VK_FORMAT_R32_SFLOAT)
-			.WithInputAttribute(4, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
-			.WithInputAttribute(5, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
-			.WithInputAttribute(6, 0, sizeof(uint32_t), VK_FORMAT_R32_UINT)
+			.WithInputAttribute(2, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
+			.WithInputAttribute(3, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
+			.WithInputAttribute(4, 0, sizeof(uint32_t), VK_FORMAT_R32_UINT)
 			.WithRasterization(VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, VK_FRONT_FACE_COUNTER_CLOCKWISE)
 			.WithDepthTesting()
 			.WithAlphaColorBlending()
@@ -104,11 +101,8 @@ namespace Strawberry::TwoD
 				Vulkan::Buffer::Builder(mPipeline.GetDevice(), Vulkan::MemoryTypeCriteria::HostVisible())
 					.WithUsage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
 					.WithData(Core::IO::DynamicByteBuffer::FromObjects(
-						Core::Math::Translate(mScale * sprite.GetScale() * sprite.GetPosition().AsSize<2>()) *
-						Core::Math::RotateZ<float>(sprite.GetRotation()) *
-						Core::Math::Scale(mScale * sprite.GetScale() * sprite.GetExtent().AppendedWith(1.0f)) *
-						Core::Math::Scale<float>(sprite.GetFlipX() ? -1.0f : 1.0f, 1.0f, 1.0f),
-						sprite.GetPosition()[2],
+						(mScale * sprite.GetScale() * sprite.GetPosition().AsSize<2>()).AppendedWith(sprite.GetPosition()[2]),
+						(mScale * sprite.GetScale() * sprite.GetExtent()).AppendedWith(sprite.GetRotation()),
 						sprite.GetTextureMin(),
 						sprite.GetTextureMax(),
 						sprite.GetTexturePage()))
