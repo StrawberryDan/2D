@@ -111,6 +111,7 @@ namespace Strawberry::TwoD
 		}
 
 		batch.emplace_back(Vulkan::Batch(mPipeline)
+			.WithOrderingConstant((double) sprite.GetPosition()[2])
 			.WithVertexCount(6)
 			.WithDescriptorSet(0, &mDrawConstantsDescriptorSet)
 			.WithDescriptorSet(1, mTextureAtlasDescriptorSets.at(sprite.GetTexture().Image()->GetHandle()))
