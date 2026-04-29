@@ -40,7 +40,6 @@ namespace Strawberry::TwoD
 			.WithInputAttribute(3, 0, sizeof(Core::Math::Vec2f), VK_FORMAT_R32G32_SFLOAT)
 			.WithInputAttribute(4, 0, sizeof(uint32_t), VK_FORMAT_R32_UINT)
 			.WithRasterization(VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, VK_FRONT_FACE_COUNTER_CLOCKWISE)
-			.WithDepthTesting()
 			.WithAlphaColorBlending()
 			.WithViewport(frameBuffer)
 			.Build())
