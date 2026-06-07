@@ -32,11 +32,10 @@ void main()
     if (normal.a > 0)
     {
         normal.x = 2.0 * normal.x - 1.0;
-        normal.y = 2.0 * normal.y- 1.0;
+        normal.y = 2.0 * normal.y - 1.0;
         mat2 rotation = mat2(cos(-inRotation), sin(-inRotation), -sin(-inRotation), cos(-inRotation));
         normal.xy = rotation * normal.xy;
         normal = normalize(normal);
-
 
         const float LAMBERTIAN = (1.0 - AMBIENT) * clamp(dot(normal.xyz, -LIGHT_DIRECTION), 0.0, 1.0);
 
