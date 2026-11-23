@@ -2,9 +2,11 @@
 
 #include "NormalSprite.hpp"
 #include "Sprite.hpp"
+#include "Strawberry/Core/IO/DynamicByteBuffer.hpp"
 #include "Strawberry/Core/Math/Transformations.hpp"
 #include "Strawberry/Vulkan/Descriptor/Sampler.hpp"
 #include "Strawberry/Vulkan/Resource/Buffer.hpp"
+#include "vulkan/vulkan_core.h"
 
 
 static uint8_t VERTEX_SHADER[] {
@@ -19,12 +21,12 @@ static uint8_t FRAGMENT_SHADER[] {
 
 namespace Strawberry::TwoD
 {
-	static constexpr size_t DRAW_CONSTANTS_BUFFER_SIZE = sizeof(Core::Math::Mat4f);
+	static constexpr size_t DRAW_CONSTANTS_BUFFER_SIZE = sizeof(Core::Math::Mat4f) + sizeof(Core::Math::Vec3f);
 
 
 	NormalSpriteRenderer::NormalSpriteRenderer(Vulkan::Framebuffer& frameBuffer, uint32_t subpassIndex)
 		: mPipelineLayout(Vulkan::PipelineLayout::Builder(frameBuffer.GetDevice())
-			.WithDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.WithDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
 			.WithDescriptor(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.WithDescriptor(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.Build())
@@ -59,6 +61,7 @@ namespace Strawberry::TwoD
 					.Map([] (auto x) { return 1.0 / x; })
 					.AppendedWith(1.0f, 1.0f)
 					.AsType<float>()))
+            , mLightDirection(-1.0, -1.0, -0.2)
 	{
 		SetProjectionMatrix(mProjectionMatrix);
 		mDrawConstantsDescriptorSet.SetUniformBuffer(0, 0, mDrawConstantsBuffer);
@@ -74,8 +77,15 @@ namespace Strawberry::TwoD
 	void NormalSpriteRenderer::SetProjectionMatrix(const Core::Math::Mat4f& projectionMatrix)
 	{
 		mProjectionMatrix = projectionMatrix;
-		mDrawConstantsBuffer.SetData(Core::IO::DynamicByteBuffer::FromObjects(mProjectionMatrix));
+		mDrawConstantsBuffer.SetData(Core::IO::DynamicByteBuffer::FromObjects(mProjectionMatrix, mLightDirection));
 	}
+
+
+    void NormalSpriteRenderer::SetLightDirection(const Core::Math::Vec3f lightDirection) noexcept
+    {
+        mLightDirection = lightDirection;
+        mDrawConstantsBuffer.SetData(Core::IO::DynamicByteBuffer::FromObjects(mProjectionMatrix, mLightDirection));
+    }
 
 
 	std::vector<Vulkan::Batch> NormalSpriteRenderer::MakeBatch(const NormalSprite& sprite)

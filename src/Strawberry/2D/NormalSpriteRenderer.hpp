@@ -19,6 +19,8 @@ namespace Strawberry::TwoD
 		[[nodiscard]] const Core::Math::Mat4f GetProjectionMatrix() const noexcept;
 		void SetProjectionMatrix(const Core::Math::Mat4f& projectionMatrix);
 
+        void SetLightDirection(const Core::Math::Vec3f lightDirection) noexcept;
+
 
 		std::vector<Vulkan::Batch> MakeBatch(const NormalSprite& sprite);
 
@@ -37,6 +39,7 @@ namespace Strawberry::TwoD
 		Vulkan::DescriptorSet    mDrawConstantsDescriptorSet;
 		Vulkan::Buffer           mDrawConstantsBuffer;
 		Core::Math::Mat4f        mProjectionMatrix;
+        Core::Math::Vec3f        mLightDirection;
 
 		Vulkan::Sampler mDiffuseSampler;
 		Vulkan::Sampler mNormalSampler;

@@ -1,7 +1,7 @@
 #version 460
 
 
-#include "SpriteRenderer.glsl"
+#include "NormalSpriteRenderer.glsl"
 
 
 layout (location=0) in vec3 inPosition;
@@ -79,7 +79,7 @@ void main()
     mat2 rotation = mat2(cos(inRotation), sin(inRotation), -sin(inRotation), cos(inRotation));
 
     gl_Position = ProjectionMatrix * vec4(
-        vec2(inPosition.xy + rotation * inExtent.xy * GEOMETRY[gl_VertexIndex]),
+        vec2(inPosition.xy + rotation * (inExtent.xy * GEOMETRY[gl_VertexIndex])),
         inPosition.z,
         1.0);
     gl_Position.xy *= pow(2, inPosition.z);

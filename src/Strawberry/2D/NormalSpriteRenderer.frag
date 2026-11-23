@@ -15,12 +15,10 @@ layout (location=0) out vec4 outColor;
 
 
 const float AMBIENT = 0.1;
-const vec3 LIGHT_COLOR = vec3(1.0, 0.5, 0.5);
+const vec3 LIGHT_COLOR = vec3(2.0, 1.0, 1.0);
 
 void main()
 {
-    const vec3 LIGHT_DIRECTION = normalize(vec3(-1, -1, -0.8));
-
     vec4 diffuse = texture(
         DiffuseTexture,
         vec3(inDiffuseTextureCoord, inDiffuseTexturePage));
@@ -28,6 +26,12 @@ void main()
     vec4 normal = texture(
         NormalTexture,
         vec3(inNormalTextureCoord, inNormalTexturePage));
+
+    outColor.x = normal.x;
+    outColor.y = normal.y;
+    outColor.z = 1.0;
+    outColor.w = length(normal.xy);
+    // return;
 
     if (normal.a > 0)
     {
@@ -37,9 +41,11 @@ void main()
         normal.xy = rotation * normal.xy;
         normal = normalize(normal);
 
-        const float LAMBERTIAN = (1.0 - AMBIENT) * clamp(dot(normal.xyz, -LIGHT_DIRECTION), 0.0, 1.0);
+        float dotProduct = dot(normal.xyz, -LightDirection);
+        float LAMBERTIAN = 10.0 * pow((1.0 - AMBIENT) * clamp(dotProduct, 0.0, 1.0), 1);
+        LAMBERTIAN = clamp(LAMBERTIAN * -LightDirection.z, 0.0, 1.0);
 
-        outColor.xyz = AMBIENT * diffuse.xyz + LAMBERTIAN * diffuse.xyz * LIGHT_COLOR;
+        outColor.xyz = (AMBIENT * diffuse.xyz + LAMBERTIAN * diffuse.xyz) * LIGHT_COLOR;
         outColor.w = diffuse.w;
     }
     else
