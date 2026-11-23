@@ -70,18 +70,6 @@ namespace Strawberry::TwoD
 	}
 
 
-	bool Sprite::GetFlipX() const
-	{
-		return mScreenTransform.GetFlipX();
-	}
-
-
-	void Sprite::SetFlipX(bool flipX)
-	{
-		mScreenTransform.SetFlipX(flipX);
-	}
-
-
 	const TextureReference& Sprite::GetTexture() const
 	{
 		return mDiffuseTextureReference;

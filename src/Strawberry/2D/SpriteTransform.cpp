@@ -37,15 +37,4 @@ namespace Strawberry::TwoD
 	{
 		mRotation = radians;
 	}
-
-
-	bool SpriteTransform::GetFlipX() const
-	{
-		return mFlipX;
-	}
-
-	void SpriteTransform::SetFlipX(bool flip)
-	{
-		mFlipX = flip;
-	}
 }

@@ -48,9 +48,9 @@ namespace Strawberry::TwoD
 
 		struct Entry
 		{
-			unsigned int                      cellSize;
-			Core::Math::AABB<unsigned int, 2> region;
-			unsigned int                      arrayLayer;
+			unsigned int                                cellSize;
+			Core::Math::Geometry::AABB<unsigned int, 2> region;
+			unsigned int                                arrayLayer;
 		};
 
 
@@ -64,7 +64,7 @@ namespace Strawberry::TwoD
 
 		struct BoxTree
 		{
-			Core::Math::NAryTree<Core::Math::AABB<unsigned int, 2>, 4> tree;
+			Core::Math::NAryTree<Core::Math::Geometry::AABB<unsigned int, 2>, 4> tree;
 			std::set<decltype(tree)::Config::NodeID>                   usedNodes;
 		};
 

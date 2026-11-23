@@ -11,7 +11,7 @@ namespace Strawberry::TwoD
 	public:
 		TextureReference(
 			const Vulkan::Image& image,
-			const Core::Math::AABB<unsigned int, 2>& region,
+			const Core::Math::Geometry::AABB<unsigned int, 2>& region,
 			unsigned int arrayIndex = 0);
 
 
@@ -24,7 +24,7 @@ namespace Strawberry::TwoD
 
 	private:
 		Core::ReflexivePointer<Vulkan::Image> mImage;
-		Core::Math::AABB<unsigned int, 2>     mRegion;
+		Core::Math::Geometry::AABB<unsigned int, 2>     mRegion;
 		unsigned int                          mArrayIndex = 0;
 	};
 }

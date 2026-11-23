@@ -5,7 +5,7 @@ namespace Strawberry::TwoD
 {
 	TextureReference::TextureReference(
 		const Vulkan::Image& image,
-		const Core::Math::AABB<unsigned int, 2>& region,
+		const Core::Math::Geometry::AABB<unsigned int, 2>& region,
 		unsigned int arrayIndex)
 			: mImage(image.GetReflexivePointer())
 			, mRegion(region)

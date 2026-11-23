@@ -11,7 +11,7 @@ namespace Strawberry::TwoD
 	{
 		for (unsigned int i = 0; i < arrayLength; i++)
 		{
-			mBoxTree.emplace(i, BoxTree(Core::Math::AABB<unsigned int, 2>::FromOriginAndExtent(
+			mBoxTree.emplace(i, BoxTree(Core::Math::Geometry::AABB<unsigned int, 2>::FromOriginAndExtent(
 				{0, 0}, pageSize)
 			));
 		}
@@ -81,7 +81,7 @@ namespace Strawberry::TwoD
 		mHandleMapping.clear();
 		for (auto& [page, boxTree] : mBoxTree)
 		{
-			boxTree.tree = Core::Math::NAryTree<Core::Math::AABB<unsigned int, 2>, 4>({{0, 0}, GetImage().GetSize().AsSize<2>()});
+			boxTree.tree = Core::Math::NAryTree<Core::Math::Geometry::AABB<unsigned int, 2>, 4>({{0, 0}, GetImage().GetSize().AsSize<2>()});
 			boxTree.usedNodes.clear();
 		}
 	}
@@ -133,7 +133,7 @@ namespace Strawberry::TwoD
 				queue.pop_back();
 
 				// Get the box and its size
-				Core::Math::AABB<unsigned int, 2> box = pageTree.tree.GetValue(currentNode);
+				Core::Math::Geometry::AABB<unsigned int, 2> box = pageTree.tree.GetValue(currentNode);
 				auto boxSize = box.Size();
 
 				// Checks if this image can be stored in a smaller box.
@@ -151,7 +151,7 @@ namespace Strawberry::TwoD
 						// Make entry;
 						Entry entry;
 						entry.cellSize   = box.Size()[0];
-						entry.region     = Core::Math::AABB<unsigned int, 2>::FromOriginAndExtent(box.Min(), size);
+						entry.region     = Core::Math::Geometry::AABB<unsigned int, 2>::FromOriginAndExtent(box.Min(), size);
 						entry.arrayLayer = pageIndex;
 						// Return entry.
 						return entry;
@@ -160,7 +160,7 @@ namespace Strawberry::TwoD
 					if (tooSmall)
 					{
 						// Make child box in top left corner by copying and moving max to center.
-						Core::Math::AABB<unsigned int, 2> childBox = box;
+						Core::Math::Geometry::AABB<unsigned int, 2> childBox = box;
 						childBox.SetMax(childBox.Center());
 
 						// Split in CW order, which means they are accessed in CCW order;

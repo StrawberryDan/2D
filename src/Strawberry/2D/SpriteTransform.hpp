@@ -18,13 +18,9 @@ namespace Strawberry::TwoD
         void SetRotation(Core::Math::Radians radians);
 
 
-        bool GetFlipX() const;
-        void SetFlipX(bool flip);
-
     private:
         Core::Math::Vec3f mPosition;
         Core::Math::Vec2f mExtent;
         Core::Math::Radians mRotation = 0.0f;
-        bool                mFlipX = false;
     };
 }
